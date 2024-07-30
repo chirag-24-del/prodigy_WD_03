@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        
+        .container {
+            text-align: center;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .cell {
+            width: 90px;
+            height: 90px;
+            background-color: #d6c3c3;
+            border: 1px solid #6e5e5e;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 44px;
+            cursor: pointer;
+        }
+        
+        .cell:hover {
+            background-color: #d4caca;
+        }
+        
+        .status {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .restart-button {
+            font-size: 16px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #d77931;
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .restart-button:hover {
+            background-color: #9a622a;
+        }
+        .toggle-ai-button {
+            
+            cursor:pointer;
+            border-radius: 1px;
+            background-color: rgb(216, 187, 207);
+        }
+        .toggle-ai-button:hover{
+            background-color: rgba(224, 167, 205, 0.973);
+        }
+    </style>
+</head>
+<body style="background-color: rgb(248, 252, 252);">
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <div id="board" class="board">
+            <div class="cell" onclick="handleCellClick(0)"></div>
+            <div class="cell" onclick="handleCellClick(1)"></div>
+            <div class="cell" onclick="handleCellClick(2)"></div>
+            <div class="cell" onclick="handleCellClick(3)"></div>
+            <div class="cell" onclick="handleCellClick(4)"></div>
+            <div class="cell" onclick="handleCellClick(5)"></div>
+            <div class="cell" onclick="handleCellClick(6)"></div>
+            <div class="cell" onclick="handleCellClick(7)"></div>
+            <div class="cell" onclick="handleCellClick(8)"></div>
+        </div>
+        <p id="status" class="status">X's turn</p>
+        <button id="restartButton" class="restart-button" onclick="restartGame()">Restart Game</button>
+        <button id="toggleAiButton" class="toggle-ai-button" onclick="toggleAi()">VS AI</button>
+    </div>
+
+    <script>
+        let currentPlayer = 'X';
+let gameActive = true;
+let gameState = ['', '', '', '', '', '', '', '', ''];
+let aiEnabled = false;
+
+const winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
+
+function handleCellClick(cellIndex) {
+    if (!gameActive || gameState[cellIndex] !== '') {
+        return;
+    }
+
+    gameState[cellIndex] = currentPlayer;
+    document.getElementById('board').children[cellIndex].textContent = currentPlayer;
+
+    if (checkWin()) {
+        document.getElementById('status').textContent = `${currentPlayer} has won!`;
+        gameActive = false;
+        return;
+    }
+
+    if (checkDraw()) {
+        document.getElementById('status').textContent = `It's a draw!`;
+        gameActive = false;
+        return;
+    }
+
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    document.getElementById('status').textContent = `${currentPlayer}'s turn`;
+
+    if (aiEnabled && currentPlayer === 'O') {
+        
+        setTimeout(makeAiMove, 500); 
+    }
+}
+
+function makeAiMove() {
+    
+    let emptyCells = [];
+    for (let i = 0; i < gameState.length; i++) {
+        if (gameState[i] === '') {
+            emptyCells.push(i);
+        }
+    }
+
+    
+    let randomIndex = Math.floor(Math.random() * emptyCells.length);
+    let aiMoveIndex = emptyCells[randomIndex];
+
+    gameState[aiMoveIndex] = 'O';
+    document.getElementById('board').children[aiMoveIndex].textContent = 'O';
+
+    if (checkWin()) {
+        document.getElementById('status').textContent = `AI has won!`;
+        gameActive = false;
+        return;
+    }
+
+    if (checkDraw()) {
+        document.getElementById('status').textContent = `It's a draw!`;
+        gameActive = false;
+        return;
+    }
+
+    currentPlayer = 'X';
+    document.getElementById('status').textContent = `${currentPlayer}'s turn`;
+}
+
+function checkWin() {
+    for (let condition of winningConditions) {
+        let [a, b, c] = condition;
+        if (gameState[a] !== '' && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function checkDraw() {
+    return !gameState.includes('');
+}
+
+function restartGame() {
+    currentPlayer = 'X';
+    gameActive = true;
+    gameState = ['', '', '', '', '', '', '', '', ''];
+    document.getElementById('status').textContent = `${currentPlayer}'s turn`;
+
+    let cells = document.getElementsByClassName('cell');
+    for (let cell of cells) {
+        cell.textContent = '';
+    }
+}
+
+function toggleAi() {
+    aiEnabled = !aiEnabled;
+    restartGame();
+    if (aiEnabled) {
+        document.getElementById('status').textContent = `${currentPlayer}'s turn`;
+    } else {
+        document.getElementById('status').textContent = `${currentPlayer}'s turn (Player vs Player)`;
+    }
+}
+    </script>
+</body>
+</html>
